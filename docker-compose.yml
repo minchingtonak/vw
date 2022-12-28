@@ -7,7 +7,7 @@ services:
     restart: always
     # user: 1000:1000 # Run as non-root user for extra security
     env_file:
-      - vaultwarden.env
+      - ./vaultwarden/vaultwarden.env
     volumes:
       - ./data/vw-data:/data
       - ./logrotate/bitwarden:/etc/logrotate.d/bitwarden:ro
@@ -20,12 +20,12 @@ services:
       - 80:80  # Needed for the ACME HTTP-01 challenge.
       - 443:443
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./data/caddy-config:/config
       - ./data/caddy-data:/data
       - ./logrotate/caddy:/etc/logrotate.d/caddy:ro
     env_file:
-      - caddy.env
+      - ./caddy/caddy.env
 
   fail2ban:
     image: crazymax/fail2ban:latest
@@ -43,7 +43,7 @@ services:
       - ./fail2ban/filter.d/vw-admin.local:/etc/fail2ban/filter.d/vw-admin.local
       - ./logrotate/fail2ban:/etc/logrotate.d/fail2ban:ro
     env_file:
-      - fail2ban.env
+      - ./fail2ban/fail2ban.env
 
   countryblock:
     # The block script will block any country (defaults to CN and AU)
@@ -57,13 +57,14 @@ services:
     volumes:
       - ./countryblock/block.sh:/block.sh:ro
       - ./data/countryblock-data:/data
+      - ./logrotate/countryblock:/etc/logrotate.d/countryblock:ro
     network_mode: "host"
     privileged: true
     cap_add:
       - NET_ADMIN
       - NET_RAW
     env_file:
-      - countryblock.env
+      - ./countryblock/countryblock.env
     command: >
       sh -c 'apk --update --no-cache add ipset iptables ip6tables wget bash tzdata &&
              ln -sf /proc/1/fd/1 /var/log/block.log &&
