@@ -5,11 +5,11 @@ services:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: always
-    # user: 1000:1000
+    # user: 1000:1000 # Run as non-root user for extra security
     env_file:
       - vaultwarden.env
     volumes:
-      - ./vw-data:/data
+      - ./data/vw-data:/data
       - ./logrotate/bitwarden:/etc/logrotate.d/bitwarden:ro
 
   caddy:
@@ -21,8 +21,8 @@ services:
       - 443:443
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy-config:/config
-      - ./caddy-data:/data
+      - ./data/caddy-config:/config
+      - ./data/caddy-data:/data
       - ./logrotate/caddy:/etc/logrotate.d/caddy:ro
     env_file:
       - caddy.env
@@ -30,17 +30,17 @@ services:
   fail2ban:
     image: crazymax/fail2ban:latest
     container_name: fail2ban
+    restart: always
     network_mode: "host"
     cap_add:
       - NET_ADMIN
       - NET_RAW
     volumes:
-      - ./fail2ban-data:/data
-      - ./vw-data:/vw-data
-      - ./jails/vaultwarden.local:/etc/fail2ban/jail.d/vaultwarden.local
-      - ./jails/vaultwarden-admin.local:/etc/fail2ban/jail.d/vaultwarden-admin.local
-      - ./filters/vaultwarden.local:/etc/fail2ban/filter.d/vaultwarden.local
-      - ./filters/vaultwarden-admin.local:/etc/fail2ban/filter.d/vaultwarden-admin.local
+      - ./data/fail2ban-data:/data
+      - ./data/vw-data:/vw-data
+      - ./fail2ban/jail.d:/etc/fail2ban/jail.d
+      - ./fail2ban/filter.d/vw.local:/etc/fail2ban/filter.d/vw.local
+      - ./fail2ban/filter.d/vw-admin.local:/etc/fail2ban/filter.d/vw-admin.local
+      - ./logrotate/fail2ban:/etc/logrotate.d/fail2ban:ro
     env_file:
-      - "./fail2ban.env"
-    restart: always
+      - fail2ban.env

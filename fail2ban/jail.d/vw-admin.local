@@ -1,0 +1,9 @@
+[vw-admin]
+enabled = true
+port = 80,443
+filter = vw-admin
+action = iptables-allports[name=vw-admin, chain=FORWARD]
+logpath = /vw-data/vaultwarden.log
+maxretry = 5
+bantime = 43200
+findtime = 43200

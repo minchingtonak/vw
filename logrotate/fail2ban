@@ -1,6 +1,6 @@
 /data/*.log {
-    # Perform logrotation as the caddy user and group
-    su caddy caddy
+    # Perform logrotation as the fail2ban user and group
+    su fail2ban fail2ban
     # Rotate daily
     daily
     # Rotate when the size is bigger than 5MB

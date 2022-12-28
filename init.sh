@@ -1,8 +1,7 @@
 #/usr/bin/env bash
 
-mkdir -p vw-data
-mkdir -p caddy-data
-mkdir -p caddy-config
-mkdir -p fail2ban-data
+for dir in 'vw-data' 'caddy-data' 'caddy-config' 'fail2ban-data'; do
+    mkdir -p data/"$dir"
+done
 
 docker compose up -d
