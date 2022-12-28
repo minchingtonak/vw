@@ -5,5 +5,5 @@ filter = vw-admin
 action = iptables-allports[name=vw-admin, chain=FORWARD]
 logpath = /vw-data/vaultwarden.log
 maxretry = 5
-bantime = 43200
-findtime = 43200
+bantime = 12h
+findtime = 12h

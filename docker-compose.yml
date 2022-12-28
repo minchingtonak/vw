@@ -44,3 +44,30 @@ services:
       - ./logrotate/fail2ban:/etc/logrotate.d/fail2ban:ro
     env_file:
       - fail2ban.env
+
+  countryblock:
+    # The block script will block any country (defaults to CN and AU)
+    # Requires cap_add as listed and privileged because it uses iptables and ipset
+    # https://hub.docker.com/_/alpine/
+    image: alpine:latest
+    restart: always
+    container_name: countryblock
+    depends_on:
+      - vaultwarden
+    volumes:
+      - ./countryblock/block.sh:/block.sh:ro
+      - ./data/countryblock-data:/data
+    network_mode: "host"
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    env_file:
+      - countryblock.env
+    command: >
+      sh -c 'apk --update --no-cache add ipset iptables ip6tables wget bash tzdata &&
+             ln -sf /proc/1/fd/1 /var/log/block.log &&
+             sed -i "/bash \\/block\\.sh update/d" /etc/crontabs/root &&
+             echo "$$COUNTRYBLOCK_SCHEDULE bash /block.sh update" >> /etc/crontabs/root &&
+             crond -d 8 &&
+             bash /block.sh start'
