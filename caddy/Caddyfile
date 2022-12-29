@@ -1,4 +1,4 @@
-{$DOMAIN}/${DOMAIN_PATH}:443 {
+{$DOMAIN}:443 {
   log {
     level INFO
     output file {$LOG_FILE} {
