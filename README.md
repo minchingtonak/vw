@@ -50,3 +50,4 @@ By default, IPs from all countries except America are blocked. Update `COUNTRIES
 
 * Vault backups
 * WAF with Coraza Caddy plugin. https://caddyserver.com/docs/modules/http.handlers.waf
+* VPN connection
