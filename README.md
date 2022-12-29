@@ -45,3 +45,8 @@ Note: account creation is disabled by default. To add new users, use the admin p
 Adapted from https://github.com/dadatuputi/bitwarden_gcloud. Credit: https://github.com/dadatuputi
 
 By default, IPs from all countries except America are blocked. Update `COUNTRIES` in `countryblock/countryblock.env` as needed.
+
+## TODO
+
+* Vault backups
+* WAF with Coraza Caddy plugin. https://caddyserver.com/docs/modules/http.handlers.waf
