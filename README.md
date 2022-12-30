@@ -8,8 +8,13 @@ Ready-to-go Vaultwarden deployment using Docker Compose.
 * Vaultwarden instance behind HTTPS-only reverse proxy with Caddy
 * Brute-force attack protection with fail2ban
 * Block IPs from specific countries with countryblock
+* Optionally host at arbitrary subpath
 * Log rotation for all services
 * Sensible, secure default settings
+
+## Usage
+
+After completing the required setup below, run `./init.sh`.
 
 ## Setup
 
@@ -46,6 +51,62 @@ Adapted from https://github.com/dadatuputi/bitwarden_gcloud. Credit: https://git
 
 By default, IPs from all countries except America are blocked. Update `COUNTRIES` in `countryblock/countryblock.env` as needed.
 
+## Optional Setup
+
+### Host at subpath
+
+For additional security, you can host your Vaultwarden instance at a subpath of your domain.
+
+1. Add a value for `DOMAIN_SUBPATH` to `caddy/caddy.env`:
+
+```
+DOMAIN_SUBPATH=/example-path # must start with a '/' and not end with a '/'
+```
+
+2. Add a value for `DOMAIN` to `vaultwarden/vaultwarden.env`. The value should be the full URL you want to host the Vaultwarden instance at, including the subpath:
+
+```
+DOMAIN=https://vw.example.com/example-path # must not end with '/'
+```
+
+3. Comment out the following lines in `caddy/Caddyfile`:
+
+```
+# Notifications redirected to the WebSocket server
+reverse_proxy /notifications/hub vaultwarden:3012
+
+# Proxy everything else to Rocket
+reverse_proxy vaultwarden:8989 {
+    # Send the true remote IP to Rocket, so that vaultwarden can put this in the
+    # log, so that fail2ban can ban the correct IP.
+    header_up X-Real-IP {remote_host}
+}
+```
+
+4. Uncomment the following block in `caddy/Caddyfile`:
+
+```
+redir {$DOMAIN_SUBPATH} {$DOMAIN_SUBPATH}/ permanent
+
+handle {$DOMAIN_SUBPATH}/* {
+    # Notifications redirected to the WebSocket server
+    reverse_proxy /notifications/hub vaultwarden:3012
+
+    # Proxy everything else to Rocket
+    reverse_proxy vaultwarden:8989 {
+        # Send the true remote IP to Rocket, so that vaultwarden can put this in the
+        # log, so that fail2ban can ban the correct IP.
+        header_up X-Real-IP {remote_host}
+    }
+}
+
+handle {
+    respond "Access Denied" 403 {
+      close
+    }
+}
+```
+
 ## Security Tips
 
 I'm working to add security mechanisms based on the recommendations on the [Vaultwarden wiki](https://github.com/dani-garcia/vaultwarden/wiki), plus some extras. That being said, there are also steps that you should take to secure your host:
@@ -63,7 +124,8 @@ I would not recommend self-hosting something as sensitive as your passwords if y
 ## TODO
 
 * Vault backups
-* WAF with Coraza Caddy plugin. https://caddyserver.com/docs/modules/http.handlers.waf
+* SMTP config for user invites
+* Intrusion attempt notifications
+* WAF with Coraza Caddy plugin. https://caddyserver.com/docs/modules/http.handlers.waf (requires custom docker image that builds caddy with plugin)
 * VPN connection
 * Optionally host at specified port for obscurity
-* Optionally host at specified path for obscurity

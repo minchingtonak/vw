@@ -5,3 +5,5 @@ for dir in 'vw-data' 'caddy-data' 'caddy-config' 'fail2ban-data' 'countryblock-d
 done
 
 docker compose up -d
+
+echo "Vaultwarden instance started!"

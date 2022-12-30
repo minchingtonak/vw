@@ -20,8 +20,31 @@
 
   # Proxy everything else to Rocket
   reverse_proxy vaultwarden:8989 {
-       # Send the true remote IP to Rocket, so that vaultwarden can put this in the
-       # log, so that fail2ban can ban the correct IP.
-       header_up X-Real-IP {remote_host}
+    # Send the true remote IP to Rocket, so that vaultwarden can put this in the
+    # log, so that fail2ban can ban the correct IP.
+    header_up X-Real-IP {remote_host}
   }
+
+  # Comment out the reverse_proxy directives above and
+  # uncomment the redir and handle directives below to use subpath hosting
+  # See readme for detailed instructions
+  # redir {$DOMAIN_SUBPATH} {$DOMAIN_SUBPATH}/ permanent
+
+  # handle {$DOMAIN_SUBPATH}/* {
+  #   # Notifications redirected to the WebSocket server
+  #   reverse_proxy /notifications/hub vaultwarden:3012
+
+  #   # Proxy everything else to Rocket
+  #   reverse_proxy vaultwarden:8989 {
+  #       # Send the true remote IP to Rocket, so that vaultwarden can put this in the
+  #       # log, so that fail2ban can ban the correct IP.
+  #       header_up X-Real-IP {remote_host}
+  #   }
+  # }
+
+  # handle {
+  #   respond "Access Denied" 403 {
+  #     close
+  #   }
+  # }
 }
