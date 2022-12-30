@@ -8,16 +8,19 @@
 # Licensed under the terms of MIT
 
 DEFAULT_LOG=/var/log/block.log
-LOG=$COUNTRYBLOCK_LOG
 
 if [ -z $COUNTRYBLOCK_LOG ]; then
     LOG=$DEFAULT_LOG
+else
+    LOG=$COUNTRYBLOCK_LOG
+fi
+
+if ! [ -z $COUNTRYBLOCK_DATA ]; then
+	mkdir -p $COUNTRYBLOCK_DATA
+	cd $COUNTRYBLOCK_DATA
 fi
 
 CHAIN=countryblock
-
-# The list of country codes is provided as an environment variable or below
-# COUNTRIES=
 
 printf "Starting blocklist and ipset construction for countries: %b\n" "$COUNTRIES" >> $LOG
 
@@ -71,7 +74,7 @@ update() {
 		wget --no-check-certificate -N https://www.ipdeny.com/ipblocks/data/aggregated/$ZONEFILE
 		printf "Downloaded zone file for %b\n" "$country" >> $LOG
 
-		# Add each IP address from the downloaded list into the ipset 'china'
+		# Add each IP address from the downloaded list into the ipset
 		for i in $(cat $ZONEFILE ); do ipset -exist -A $COUNTRY_LOWER $i; done
 		printf "Added %b subnets to %b ipset\n" "$(wc -l $ZONEFILE)" "$country" >> $LOG
 
